@@ -1,10 +1,7 @@
-from eventos.api.models import *
 from eventos.api.serializers import *
 from rest_framework.decorators import *
 from rest_framework.response import Response
 from rest_framework import status, viewsets
-from django.core.serializers import serialize
-from django.core.serializers.json import DjangoJSONEncoder
 
 class CategoryList(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -39,9 +36,8 @@ class EventsList(viewsets.ModelViewSet):
             return Response({'status': 'Evento creado correctamente'})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action( methods=['delete'], detail=False )
+    @action( methods=['delete'], detail=False)
     def delete(self, request, pk=None):
         events = Events.objects.get( pk=pk )
-        if (events.delete()):
-            return Response( status=status.HTTP_200_OK )
+        events.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
