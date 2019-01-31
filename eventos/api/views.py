@@ -14,18 +14,34 @@ class EventsList(viewsets.ModelViewSet):
     queryset = Events.objects.all().order_by('-id')
     serializer_class = EventsSerializer
 
+    @action( methods=['put'], detail=False)
+    def put(self, request, pk=None):
+        events = Events.objects.get( pk=pk )
+        serializer = EventsSerializer( events, data=request.data )
+        if serializer.is_valid():
+            serializer.save()
+            return Response( serializer.data )
+
+        return Response( serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action( methods=['get'], detail=True )
+    def getByUser(self, request, pk=None):
+        events = Events.objects.filter(userId=pk ).order_by( '-id' )
+        serializer = EventsSerializer( events, many=True )
+        return Response( serializer.data )
+
     @action(methods=['post'], detail=True)
-    def many(self, request, pk=None):
+    def guardar(self, request):
         events = self.get_object()
         serializer = EventsSerializer(data=request.data, many=True)
         if serializer.is_valid():
             events.save()
             return Response({'status': 'Evento creado correctamente'})
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=['get'], detail=True)
-    def getByUser(self, request, pk=None):
-        events = Events.objects.filter(userId=pk).order_by('-id')
-        serializer = EventsSerializer(events, many=True)
-        return Response(serializer.data)
+    @action( methods=['delete'], detail=False )
+    def delete(self, request, pk=None):
+        events = Events.objects.get( pk=pk )
+        if (events.delete()):
+            return Response( status=status.HTTP_200_OK )
+        return Response(status=status.HTTP_204_NO_CONTENT)
