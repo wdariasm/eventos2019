@@ -1,5 +1,4 @@
 from django.urls import path, include
-from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework import routers
 from eventos.api.views import *
 
@@ -10,4 +9,5 @@ router.register(r'events', EventsList)
 
 urlpatterns = [
     path('api/', include(router.urls)),
+    path('api/events/user/<int:pk>', EventsList.as_view({"get": "getByUser"}))
 ]
